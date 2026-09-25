@@ -39,6 +39,11 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-24.04
+    # The action exports the registry token only after its validate step has
+    # already run terraform init, so a root that sources a private module
+    # needs the token in the job environment for that first init.
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
