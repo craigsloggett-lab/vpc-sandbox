@@ -1,17 +1,6 @@
-# terraform-root-module-template
+# vpc-sandbox
 
-A GitHub repository template for creating new Terraform root module.
-
-## Usage
-
-The following files require your attention immediately after creating a
-repository from this template:
-
-- [ ] .github/CODEOWNERS
-- [ ] .github/dependabot.yml
-- [ ] .github/workflows/lint.yml
-- [ ] backend.tf
-- [ ] README.md
+Deploy the demo VPC to the sandbox from the private registry.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
