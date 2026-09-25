@@ -74,17 +74,26 @@ jobs:
         run: terraform init -input=false
         continue-on-error: true
 
-      # Run pre-commit to surface ALL issues in a single pass (validate,
-      # fmt, tflint, docs, trivy, etc.) so Claude sees the full picture
-      # rather than discovering errors one-at-a-time across pipeline reruns.
-      - name: Run pre-commit checks
-        uses: pre-commit/action@v3.0.1
+      # Surface every lint finding in one pass so Claude sees the full picture
+      # rather than discovering errors one at a time across pipeline reruns.
+      # This repo lints through CI actions, not pre-commit, so run the same
+      # tools here and keep their output in the file the playbook reads.
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
         continue-on-error: true
 
-      - name: Capture pre-commit results
+      - name: Capture lint results
         if: always()
         run: |
-          pre-commit run --all-files 2>&1 | tee .pre-commit-results.txt || true
+          {
+            echo '# terraform fmt'
+            terraform fmt -check -recursive 2>&1 || true
+            echo '# terraform validate'
+            terraform validate -no-color 2>&1 || true
+            echo '# tflint'
+            tflint --init >/dev/null 2>&1 || true
+            tflint --recursive --format compact 2>&1 || true
+          } | tee .pre-commit-results.txt
 
       # ── Speculative plan via TFC API (no Apply button, no workspace lock) ──
       - name: Upload Configuration
